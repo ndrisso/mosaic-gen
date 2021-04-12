@@ -1,6 +1,7 @@
 const fs = require('fs')
 const path = require('path')
-const outputPath = 'temp'
+const im = require('imagemagick')
+const outputPath = path.join(__dirname, '..', 'temp')
 
 /**
  * Squares and resizes every image in the tilesPath
@@ -9,28 +10,40 @@ const outputPath = 'temp'
  * @returns {string} Path to folder containing output
  */
 const prepareImages = async (tilesPath) => {
-  if (fs.existsSync(tilesPath)) {
-    fs.rmdirSync(outputPath, { recursive: true })
-  }
-  fs.mkdirSync(outputPath)
-  await copyTiles(tilesPath, outputPath)
+  cleanPreexistingTemp(outputPath)
+  copyTiles(tilesPath, outputPath)
   await squareTiles(outputPath)
-  await resizeTiles(outputPath)
 
   return outputPath
 }
 
-const copyTiles = async (tilesPath, outputPath) => {
+const cleanPreexistingTemp = (outputPath) => {
+  if (fs.existsSync(outputPath)) {
+    fs.rmdirSync(outputPath, { recursive: true })
+  }
+  fs.mkdirSync(outputPath)
+}
+
+const copyTiles = (tilesPath, outputPath) => {
   files = fs.readdirSync(tilesPath)
   files.forEach(file => fs.copyFileSync(path.join(tilesPath, file), path.join(outputPath, file)))
 }
 
-const squareTiles = async (tilesPath) => {
-  return true
-}
-
-const resizeTiles = async (tilesPath) => {
-  return true
+const squareTiles = (outputPath) => {
+  files = fs.readdirSync(outputPath)
+  return Promise.all(
+    files.map(file => {
+      return new Promise((resolve, reject) => {
+        im.convert([path.join(outputPath, file), '-resize', '100x100!', path.join(outputPath, file)], (err, stdout, stderr) => {
+          if (err) {
+            reject(err)
+          } else {
+            resolve()
+          }
+        })
+      })
+    })
+  )
 }
 
 module.exports = {
