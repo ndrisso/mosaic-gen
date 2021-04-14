@@ -1,4 +1,4 @@
-const { prepareImages } = require('../src/image_utils')
+const { prepareImages } = require('../src/setup')
 const im = require('imagemagick')
 const fs = require('fs')
 const path = require('path')
