@@ -52,7 +52,26 @@ const imageToTxt = async (image) => {
     return txtImage
 }
 
+const identifyImages = (folderPath) => {
+    files = fs.readdirSync(folderPath)
+    return Promise.all(files.map(file => identifyImage(path.join(folderPath, file))))
+}
+
+const identifyImage = (filePath) => {
+    return new Promise((resolve, reject) => {
+        im(filePath).identify((err, features) => {
+            if (err) {
+                reject(err)
+            } else {
+                resolve(features)
+            }
+        })
+    })
+}
+
 module.exports = {
     squareImages,
-    getPixels
+    getPixels,
+    identifyImages,
+    identifyImage,
 }
