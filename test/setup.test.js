@@ -1,7 +1,6 @@
 const { prepareImages } = require('../src/setup')
 const { identifyImages } = require('../src/image_utils')
 
-const fs = require('fs')
 const path = require('path')
 
 describe('prepareImages', () => {

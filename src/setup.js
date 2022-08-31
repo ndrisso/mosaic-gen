@@ -26,7 +26,7 @@ const cleanPreexistingTemp = (outputPath) => {
 }
 
 const copyTiles = (tilesPath, outputPath) => {
-    files = fs.readdirSync(tilesPath)
+    const files = fs.readdirSync(tilesPath).filter(f => ['.jpg', '.png'].includes(path.extname(f)))
     files.forEach(file => fs.copyFileSync(path.join(tilesPath, file), path.join(outputPath, file)))
 }
 

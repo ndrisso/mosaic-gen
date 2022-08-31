@@ -25,11 +25,10 @@ describe('getPixels', () => {
     test('properly captures pixel colors', async () => {
         const filePath = path.join(__dirname, 'sample_images', 'sample_3.jpg')
         const pixels = await getPixels(filePath)
-        const image = await identifyImage(filePath)
 
         expect(pixels[0]).toMatchObject({r: 253, g: 253, b: 253})
         expect(pixels[500]).toMatchObject({r: 255, g: 255, b: 255})
-        expect(pixels[5000]).toMatchObject({r: 139, g: 183, b: 230})
+        expect(pixels[5000]).toMatchObject({r: 139, g: 183, b: 228})
         expect(pixels[9999]).toMatchObject({r: 252, g: 237, b: 206})
     })
 })
