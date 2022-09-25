@@ -11,25 +11,27 @@ const outputPath = path.join(__dirname, '..', 'temp')
  * @returns {string} Path to folder containing resized images
  */
  const prepareImages = async (tilesPath) => {
-    cleanPreexistingTemp(outputPath)
-    copyTiles(tilesPath, outputPath)
-    await squareImages(outputPath)
+  console.log('Prepping images...')
 
-    return outputPath
+  cleanPreexistingTemp(outputPath)
+  copyTiles(tilesPath, outputPath)
+  await squareImages(outputPath)
+
+  return outputPath
 }
 
 const cleanPreexistingTemp = (outputPath) => {
-    if (fs.existsSync(outputPath)) {
-        fs.rmdirSync(outputPath, { recursive: true })
-    }
-    fs.mkdirSync(outputPath)
+  if (fs.existsSync(outputPath)) {
+    fs.rmdirSync(outputPath, { recursive: true })
+  }
+  fs.mkdirSync(outputPath)
 }
 
 const copyTiles = (tilesPath, outputPath) => {
-    const files = fs.readdirSync(tilesPath).filter(f => ['.jpg', '.png'].includes(path.extname(f)))
-    files.forEach(file => fs.copyFileSync(path.join(tilesPath, file), path.join(outputPath, file)))
+  const files = fs.readdirSync(tilesPath).filter(f => ['.jpg', '.png'].includes(path.extname(f)))
+  files.forEach(file => fs.copyFileSync(path.join(tilesPath, file), path.join(outputPath, file)))
 }
 
 module.exports = {
-    prepareImages
+  prepareImages
 }
