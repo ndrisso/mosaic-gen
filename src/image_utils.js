@@ -35,14 +35,30 @@ const resizeImage = (imagePath, width, height, resultImagePath) => (
   })
 )
 
+const appendImages = (tilesFilePaths, resultFilePath, leftToRight = true) => {
+  let resultImage = im(tilesFilePaths.shift())
+  
+  tilesFilePaths.forEach(filePath => {
+    resultImage = resultImage.append(filePath, leftToRight)
+  })
+
+  return new Promise((resolve, reject) => {
+    resultImage.write(resultFilePath, (err) => {
+      if (err) {
+        reject(err)
+      }
+
+      resolve(resultFilePath)
+    })
+  })
+}
+
 const averageColor = async (imagePath) => {
   const image = im(imagePath).resize(1, 1, '!')
   return (await getPixels(image))[0]
 }
 
 const parseImage = async (sourceImage) => {
-  console.log('Extracting pixels from source image...')
-
   const image = im(sourceImage)
   const { height, width } = await imageSize(image)
   return {
@@ -116,5 +132,6 @@ module.exports = {
   parseImage,
   identifyImages,
   identifyImage,
-  resizeImage
+  resizeImage,
+  appendImages
 }

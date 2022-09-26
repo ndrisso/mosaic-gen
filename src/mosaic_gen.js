@@ -1,21 +1,25 @@
-const { prepareImages } = require('./setup')
-const { getPixels, averageColor, parseImage } = require('./image_utils')
+const { prepareImages, cleanUp } = require('./setup')
+const { averageColor, parseImage, appendImages } = require('./image_utils')
 const fs = require('fs')
 const path = require('path')
 const gm = require('gm')
 const im = gm.subClass({ imageMagick: true })
 const resultPath = path.join(__dirname, '..')
 
-const createMosaic = async (sourceImagePath, tilesPath) => {
+const createMosaic = async (sourceImagePath, tilesPath, outputImagePath) => {
+  console.log('Prepping tiles...')
   const outputPath = await prepareImages(tilesPath)
+  console.log('Parsing source image pixels...')
   const sourceImage = await parseImage(sourceImagePath)
+  console.log('Calculating average color for each tile...')
   const tiles = await loadTiles(outputPath)
-
-  writeMosaic(sourceImage, tiles)
+  console.log('Creating mosaic...')
+  await writeMosaic(sourceImage, tiles, outputImagePath)
+  cleanUp()
+  console.log('Done!')
 }
 
-const writeMosaic = async (sourceImage, tiles) => {
-  console.log('Creating mosaic...')
+const writeMosaic = async (sourceImage, tiles, outputImagePath) => {
   const { height, width, pixels } = sourceImage
 
   let promises = []
@@ -32,31 +36,10 @@ const writeMosaic = async (sourceImage, tiles) => {
   }
 
   const files = await Promise.all(promises)
-  await appendImages(files, path.join(resultPath, 'mosaic.png'), false)
-
-  console.log('Mosaic created!')
-}
-
-const appendImages = (tilesFilePaths, resultFilePath, leftToRight = true) => {
-  let resultImage = im(tilesFilePaths.shift())
-  
-  tilesFilePaths.forEach(filePath => {
-    resultImage = resultImage.append(filePath, leftToRight)
-  })
-
-  return new Promise((resolve, reject) => {
-    resultImage.write(resultFilePath, (err) => {
-      if (err) {
-        reject(err)
-      }
-
-      resolve(resultFilePath)
-    })
-  })
+  await appendImages(files, outputImagePath, false)
 }
 
 const loadTiles = (tilesPath) => {
-  console.log('Loading tiles and calculating their average color...')
   const files = fs.readdirSync(tilesPath)
 
   let tiles = files.map(async file => {
@@ -91,7 +74,5 @@ const diffPixels = (pixelA, pixelB) => (
 )
 
 module.exports = {
-  createMosaic,
-  loadTiles,
-  closestTile
+  createMosaic
 }
